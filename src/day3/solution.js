@@ -3,6 +3,26 @@ import path from 'path'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 
+function maxSubsequenceDigits(s, k) {
+  const n = s.length;
+  if (k >= n) return s;
+  const stack = [];
+  let toRemove = n - k;
+
+  for (let i = 0; i < n; i++) {
+    const ch = s[i];
+    while (stack.length > 0 && toRemove > 0 && stack[stack.length - 1] < ch) {
+      stack.pop();
+      toRemove--;
+    }
+    stack.push(ch);
+  }
+
+  if (toRemove > 0) stack.length = stack.length - toRemove;
+  
+  return stack.slice(0, k).join("");
+}
+
 const p = path.join(__dirname, "input.txt");
 fs.readFile(p, (_, data) => {
     const lines = data.toString().split("\n");
@@ -11,23 +31,11 @@ fs.readFile(p, (_, data) => {
 
     for (let i = 0; i < lines.length; i++){
         let l = lines[i];
-        let digits = l.split("");
-        jolts[i] = [];
-
-        for (let i1 = 0; i1 < digits.length; i1++) {
-            const n1 = digits[i1];
-
-            for (let i2 = i1+1; i2 < digits.length; i2++) {
-                const n2 = digits[i2];
-
-                jolts[i].push(n1 + n2);
-            }
-        }
+        jolts[i] = maxSubsequenceDigits(l, 12);
     }
 
     const ans = jolts
-        .map((v) => v.sort().pop())
-        .flatMap(Number)
+        .map(Number)
         .reduce((a,b) => a + b, 0);
 
     console.log(ans);
